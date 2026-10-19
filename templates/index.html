@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <h5 class="mb-0 fw-bold text-secondary">Directorio de Alumnos <span class="badge bg-success ms-1">{{ total }}</span></h5>
+        <a href="{{ url_for('nuevo_alumno') }}" class="btn btn-success">
+            <i class="bi bi-person-plus-fill me-1"></i>Nuevo Alumno
+        </a>
+    </div>
+    
+    <div class="card-body">
+        <!-- Barra de búsqueda -->
+        <form method="GET" action="{{ url_for('index') }}" class="row g-2 mb-4">
+            <div class="col-sm-9 col-md-10">
+                <div class="input-group">
+                    <span class="input-group-text bg-light"><i class="bi bi-search"></i></span>
+                    <input type="text" name="q" class="form-control" placeholder="Buscar por nombre, apellidos, CURP o matrícula..." value="{{ q }}">
+                    {% if q %}
+                        <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">Limpiar</a>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-sm-3 col-md-2 d-grid">
+                <button type="submit" class="btn btn-primary">Buscar</button>
+            </div>
+        </form>
+
+        <!-- Tabla de alumnos -->
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Matrícula</th>
+                        <th>Nombre Completo</th>
+                        <th>CURP</th>
+                        <th class="text-end">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for a in alumnos %}
+                    <tr>
+                        <td><span class="badge bg-secondary">{{ a.matricula }}</span></td>
+                        <td class="fw-medium">{{ a.paterno }} {{ a.materno or '' }} {{ a.nombre }}</td>
+                        <td><code class="text-dark">{{ a.curp }}</code></td>
+                        <td class="text-end">
+                            <!-- Botón Consultar Detalle -->
+                            <button type="button" class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#modalDetalle{{ a.id }}" title="Ver detalle">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                            <!-- Botón Editar -->
+                            <a href="{{ url_for('editar_alumno', alumno_id=a.id) }}" class="btn btn-sm btn-outline-primary" title="Editar">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <!-- Botón Eliminar -->
+                            <form action="{{ url_for('eliminar_alumno', alumno_id=a.id) }}" method="POST" class="d-inline" onsubmit="return confirm('¿Seguro que deseas eliminar al alumno {{ a.nombre }} {{ a.paterno }}?');">
+                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Eliminar">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+
+                    <!-- Modal de Detalle del Alumno -->
+                    <div class="modal fade" id="modalDetalle{{ a.id }}" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title fw-bold">Ficha del Alumno #{{ a.id }}</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <ul class="list-group list-group-flush">
+                                        <li class="list-group-item"><strong>Matrícula:</strong> {{ a.matricula }}</li>
+                                        <li class="list-group-item"><strong>Nombre(s):</strong> {{ a.nombre }}</li>
+                                        <li class="list-group-item"><strong>Apellido Paterno:</strong> {{ a.paterno }}</li>
+                                        <li class="list-group-item"><strong>Apellido Materno:</strong> {{ a.materno or 'No registrado' }}</li>
+                                        <li class="list-group-item"><strong>CURP:</strong> <code>{{ a.curp }}</code></li>
+                                        <li class="list-group-item text-muted small"><strong>Creado:</strong> {{ a.creado }}</li>
+                                        <li class="list-group-item text-muted small"><strong>Última modificación:</strong> {{ a.modificado }}</li>
+                                    </ul>
+                                </div>
+                                <div class="modal-footer">
+                                    <a href="{{ url_for('editar_alumno', alumno_id=a.id) }}" class="btn btn-primary btn-sm">Editar Alumno</a>
+                                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cerrar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <tr>
+                        <td colspan="4" class="text-center py-4 text-muted">
+                            No se encontraron alumnos registrados.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Paginación -->
+        {% if total_pages > 1 %}
+        <nav class="mt-3">
+            <ul class="pagination justify-content-center mb-0">
+                <li class="page-item {% if page <= 1 %}disabled{% endif %}">
+                    <a class="page-link" href="{{ url_for('index', page=page-1, q=q) }}">Anterior</a>
+                </li>
+                {% for p in range(1, total_pages + 1) %}
+                <li class="page-item {% if p == page %}active{% endif %}">
+                    <a class="page-link" href="{{ url_for('index', page=p, q=q) }}">{{ p }}</a>
+                </li>
+                {% endfor %}
+                <li class="page-item {% if page >= total_pages %}disabled{% endif %}">
+                    <a class="page-link" href="{{ url_for('index', page=page+1, q=q) }}">Siguiente</a>
+                </li>
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

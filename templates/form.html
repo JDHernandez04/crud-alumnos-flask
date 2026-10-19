@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0 fw-bold text-secondary">{{ accion }} Alumno</h5>
+            </div>
+            <div class="card-body p-4">
+                <form method="POST">
+                    <!-- Matrícula -->
+                    <div class="mb-3">
+                        <label class="form-label fw-medium">Matrícula <span class="text-danger">*</span></label>
+                        <input type="text" name="matricula" class="form-control {% if errores.get('matricula') %}is-invalid{% endif %}" 
+                               value="{{ alumno.get('matricula', '') }}" maxlength="20" required placeholder="Ej. 2026-0001">
+                        {% if errores.get('matricula') %}
+                            <div class="invalid-feedback">{{ errores.get('matricula') }}</div>
+                        {% else %}
+                            <div class="form-text">Máximo 20 caracteres. Única dentro del sandbox.</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- CURP -->
+                    <div class="mb-3">
+                        <label class="form-label fw-medium">CURP <span class="text-danger">*</span></label>
+                        <input type="text" name="curp" class="form-control text-uppercase {% if errores.get('curp') %}is-invalid{% endif %}" 
+                               value="{{ alumno.get('curp', '') }}" minlength="18" maxlength="18" 
+                               pattern="^[A-Za-z]{4}[0-9]{6}[A-Za-z0-9]{8}$" required placeholder="4 letras, 6 dígitos, 8 alfanuméricos">
+                        {% if errores.get('curp') %}
+                            <div class="invalid-feedback">{{ errores.get('curp') }}</div>
+                        {% else %}
+                            <div class="form-text">Exactamente 18 caracteres (4 letras, 6 dígitos, 8 alfanuméricos).</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Nombre(s) -->
+                    <div class="mb-3">
+                        <label class="form-label fw-medium">Nombre(s) <span class="text-danger">*</span></label>
+                        <input type="text" name="nombre" class="form-control {% if errores.get('nombre') %}is-invalid{% endif %}" 
+                               value="{{ alumno.get('nombre', '') }}" maxlength="50" required>
+                        {% if errores.get('nombre') %}
+                            <div class="invalid-feedback">{{ errores.get('nombre') }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Apellido Paterno y Materno -->
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-medium">Apellido Paterno <span class="text-danger">*</span></label>
+                            <input type="text" name="paterno" class="form-control {% if errores.get('paterno') %}is-invalid{% endif %}" 
+                                   value="{{ alumno.get('paterno', '') }}" maxlength="50" required>
+                            {% if errores.get('paterno') %}
+                                <div class="invalid-feedback">{{ errores.get('paterno') }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-medium">Apellido Materno <span class="text-muted small">(Opcional)</span></label>
+                            <input type="text" name="materno" class="form-control {% if errores.get('materno') %}is-invalid{% endif %}" 
+                                   value="{{ alumno.get('materno', '') or '' }}" maxlength="50">
+                            {% if errores.get('materno') %}
+                                <div class="invalid-feedback">{{ errores.get('materno') }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <hr>
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="{{ url_for('index') }}" class="btn btn-light border">Cancelar</a>
+                        <button type="submit" class="btn btn-success px-4">Guardar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
